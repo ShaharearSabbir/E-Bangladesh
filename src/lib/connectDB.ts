@@ -1,3 +1,5 @@
+"use server";
+
 import { Collection, Db, MongoClient, ServerApiVersion } from "mongodb";
 
 const uri = process.env.MONGOURI;
