@@ -1,26 +1,49 @@
 "use server";
 import connectDB from "@/lib/connectDB";
 import bcrypt from "bcrypt";
-import { Collection } from "mongodb";
+import { Collection, WithId } from "mongodb";
 
 interface UserData {
   email: string;
   password: string;
 }
 
-interface CreateUser {
+interface User {
+  email: string;
+  role: string;
+  UID: string;
+}
+
+export interface FunctionReturns {
   status: number;
   message: string;
   acknowledged: boolean;
+  user?: User;
+}
+
+interface UserOnDatabase {
+  email: string;
+  passwordHash: string;
+  role: string;
+  createdAt: string;
+  UID: string;
 }
 
 // Create User
-export const createUser = async (userData: UserData): Promise<CreateUser> => {
-  const passwordHash = hashPassword(userData.password);
+export const createUser = async (
+  userData: UserData
+): Promise<FunctionReturns> => {
+  const passwordHash = (await hashPassword(userData.password)) as string;
   const email = userData.email;
 
   //   New User Data
-  const newUser = { email, passwordHash, role: "user", createdAt: new Date() };
+  const newUser: UserOnDatabase = {
+    email,
+    passwordHash,
+    role: "user",
+    createdAt: new Date().toISOString(),
+    UID: generateUid(),
+  };
 
   const collection: Collection = await connectDB("users");
 
@@ -28,7 +51,7 @@ export const createUser = async (userData: UserData): Promise<CreateUser> => {
   const result = await collection.insertOne(newUser);
 
   if (result.insertedId) {
-    const sendResult: CreateUser = {
+    const sendResult: FunctionReturns = {
       status: 201,
       message: "Account created successfully",
       acknowledged: true,
@@ -37,7 +60,7 @@ export const createUser = async (userData: UserData): Promise<CreateUser> => {
     return sendResult;
   }
 
-  const sendResult: CreateUser = {
+  const sendResult: FunctionReturns = {
     status: 500,
     message: "Something went wrong. try again",
     acknowledged: false,
@@ -46,7 +69,29 @@ export const createUser = async (userData: UserData): Promise<CreateUser> => {
   return sendResult;
 };
 
+// getUserData
 
+export const getUserFromDb = async (
+  email: string,
+  password: string
+): Promise<User> => {
+  const collection: Collection = await connectDB("users");
+  const userData = (await collection.findOne({
+    email,
+  })) as WithId<UserOnDatabase>;
+
+  if (!userData) {
+    throw new Error("User not found");
+  }
+
+  const isMatch = verifyPassword(password, userData.passwordHash);
+
+  if (!isMatch) {
+    throw new Error("Password doesn't match");
+  }
+
+  return userData;
+};
 
 // Hashing
 const saltRounds = 10;
@@ -60,7 +105,6 @@ const hashPassword = async (password: string) => {
   }
 };
 
-
 // Verify Password
 export const verifyPassword = async (password: string, storedHash: string) => {
   try {
@@ -70,4 +114,17 @@ export const verifyPassword = async (password: string, storedHash: string) => {
     console.error("Error comparing password:", error);
     throw error;
   }
+};
+
+// Generate random UID
+
+const generateUid = () => {
+  // Use the current timestamp to ensure uniqueness over time
+  const timestamp = new Date().getTime();
+
+  // Generate a random number between 0 and 1, then convert to a string
+  const random = Math.random().toString(36).substring(2, 10);
+
+  // Combine them to create a unique ID
+  return `${timestamp}${random}`;
 };
