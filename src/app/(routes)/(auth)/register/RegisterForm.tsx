@@ -1,67 +1,81 @@
 "use client";
 
-import { createUser } from "@/actions/user";
-import SubmitButton from "@/components/SubmitButton";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
+import { useForm, SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
 
-interface RegisterForm {
-  [k: string]: FormDataEntryValue;
+interface RegisterFormValues {
   email: string;
   password: string;
   confirmPassword: string;
 }
 
 const RegisterForm = () => {
-  const [error, setError] = useState<string>("");
-  const route = useRouter();
+  const router = useRouter();
 
-  //   handle form submit
-  const handleSubmit = async (data: FormData) => {
-    setError("");
-    const userData = Object.fromEntries(data.entries()) as RegisterForm;
-    if (userData.password !== userData.confirmPassword) {
-      setError("Password doesn't match");
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>();
+
+  const formSubmit: SubmitHandler<RegisterFormValues> = (data) => {
+    if (data.password !== data.confirmPassword) {
+      toast.error("Password Didn't match")
       return;
     }
 
-    const newUser = { email: userData.email, password: userData.password };
-
-    const result = await createUser(newUser);
-
-    if (result.acknowledged) {
-      route.push("/");
-    }
+    console.log("Form Data:", data);
+    // createUser(data) -> redirect if success
+    router.push("/");
   };
 
   return (
-    <form action={handleSubmit}>
-      <label htmlFor="">
-        Email
-        <input className="p-2 border-1" type="email" name="email" />
-      </label>
-      <br />
-      <label htmlFor="">
-        Password
-        <input className="p-2 border-1" type="password" name="password" />
-      </label>
-      <br />
-      <label htmlFor="">
-        Confirm Password
-        <input
-          className="p-2 border-1"
-          type="password"
-          name="confirmPassword"
-        />
-      </label>
-      <br />
-      {error && <p>{error}</p>}
-      <SubmitButton
-        loadingText="Creating Account"
-        submitText="Create Account"
-        className="btn"
-      />
-    </form>
+    <div className="w-sm pb-8 bg-white dark:bg-gray-900 rounded-2xl p-6">
+      <form onSubmit={handleSubmit(formSubmit)} className="flex flex-col items-center justify-center gap-6">
+
+        <div className="grid w-full max-w-sm items-start gap-1">
+          <Label htmlFor="email">Email</Label>
+          <Input
+            type="email"
+            id="email"
+            placeholder="Email"
+            {...register("email", { required: "Email is required" })}
+          />
+          {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+        </div>
+
+        <div className="grid w-full max-w-sm items-start gap-1">
+          <Label htmlFor="password">Password</Label>
+          <Input
+            type="password"
+            id="password"
+            placeholder="Password"
+            {...register("password", { required: "Password is required" })}
+          />
+          {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+        </div>
+
+        <div className="grid w-full max-w-sm items-start gap-1">
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
+          <Input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm Password"
+            {...register("confirmPassword", { required: "Confirm Password is required" })}
+          />
+          {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
+        </div>
+
+        <Button className="w-full" type="submit">Register</Button>
+
+        <p className="text-center text-sm">
+          Already have an account?{" "}
+          <Link href="/login" className="font-semibold underline">Login</Link>
+        </p>
+      </form>
+    </div>
   );
 };
 
