@@ -4,8 +4,8 @@ import "./globals.css";
 import Navbar from "@/components/Navbar/Navbar";
 import { Toaster } from "sonner";
 
-import AuthProvider from "@/provider/AuthProvider";
 import { auth } from "@/auth";
+import { SessionProvider } from "next-auth/react";
 
 const InterSans = Inter({
   variable: "--font-geist-sans",
@@ -26,11 +26,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={`${InterSans.variable} antialiased`}>
-        <AuthProvider session={session}>
+        <SessionProvider session={session}>
           <Navbar />
           {children}
           <Toaster richColors position="top-right" />
-        </AuthProvider>
+        </SessionProvider>
       </body>
     </html>
   );

@@ -1,5 +1,4 @@
 "use server";
-import { signIn } from "@/auth";
 import connectDB from "@/lib/connectDB";
 import bcrypt from "bcrypt";
 import { Collection, WithId } from "mongodb";
@@ -30,11 +29,6 @@ interface UserOnDatabase {
   UID: string;
 }
 
-interface LoginData {
-  email: string;
-  password: string;
-}
-
 // Create User
 export const createUser = async (
   userData: UserData
@@ -57,8 +51,6 @@ export const createUser = async (
   const result = await collection.insertOne(newUser);
 
   if (result.insertedId) {
-    signIn("credentials", userData);
-
     const sendResult: FunctionReturns = {
       status: 201,
       message: "Account created successfully",
@@ -78,11 +70,6 @@ export const createUser = async (
 };
 
 // getUserData
-
-export const login = async (data: LoginData) => {
-  await signIn("credentials", { ...data, callbackUrl: "/" });
-};
-
 export const getUserFromDb = async (
   email: string,
   password: string
@@ -135,14 +122,10 @@ export const verifyPassword = async (password: string, storedHash: string) => {
 };
 
 // Generate random UID
-
 const generateUid = () => {
-  // Use the current timestamp to ensure uniqueness over time
   const timestamp = new Date().getTime();
 
-  // Generate a random number between 0 and 1, then convert to a string
   const random = Math.random().toString(36).substring(2, 10);
 
-  // Combine them to create a unique ID
   return `${timestamp}${random}`;
 };

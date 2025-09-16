@@ -4,6 +4,7 @@ import { createUser } from "@/actions/user";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
@@ -40,6 +41,8 @@ const RegisterForm = () => {
     if (!res.acknowledged) {
       toast.error(res.message);
     }
+
+    await signIn("credentials", { ...payload, redirect: false });
 
     router.push("/");
   };

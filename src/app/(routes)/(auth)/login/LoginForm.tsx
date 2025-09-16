@@ -1,14 +1,13 @@
 "use client";
-import { login } from "@/actions/user";
-import { signIn } from "@/auth";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { toast } from "sonner";
 
 interface RegisterFormValues {
   email: string;
@@ -25,14 +24,24 @@ const LoginForm = () => {
   } = useForm<RegisterFormValues>();
 
   const formSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
-    console.log("Form Data:", data);
-    login(data);
+    try {
+      const result = await signIn("credentials", { ...data, redirect: false });
 
-    router.push("/");
+      if (result?.error) {
+        console.error("Login failed:", result.error);
+      } else {
+        router.push("/");
+      }
+    } catch (error) {
+      console.error("An unexpected error occurred:", error);
+    }
   };
 
   return (
     <div className="w-sm pb-8 bg-white dark:bg-gray-900 rounded-2xl p-6">
+      <Button>
+        <Link href={"/"}>Home</Link>
+      </Button>
       <form
         onSubmit={handleSubmit(formSubmit)}
         className="flex flex-col items-center justify-center gap-6"
@@ -64,7 +73,7 @@ const LoginForm = () => {
         </div>
 
         <Button className="w-full" type="submit">
-          Register
+          Login
         </Button>
 
         <p className="text-center text-sm">
