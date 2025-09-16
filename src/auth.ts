@@ -10,6 +10,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: {},
       },
 
+      authorize: (credentials) => {
+        let user = null;
+
       authorize: async (credentials) => {
         const email = credentials.email as string;
         const password = credentials.password as string;

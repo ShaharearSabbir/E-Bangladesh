@@ -1,6 +1,7 @@
 "use client";
 
 import { createUser } from "@/actions/user";
+import SubmitButton from "@/components/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -31,7 +32,12 @@ const RegisterForm = () => {
       toast.error("Password Didn't match");
       return;
     }
-
+    // console.log("Form Data:", data);
+    const res = await createUser(data);
+    if (res.acknowledged) {
+      toast.success(res.message);
+      router.push("/");
+    }
     const payload = {
       email: data.email,
       password: data.password,
@@ -96,6 +102,9 @@ const RegisterForm = () => {
           )}
         </div>
 
+        {/* <Button className="w-full" type="submit">Register</Button> */}
+
+        <SubmitButton loadingText="Loading..." submitText="Register" className="w-full"></SubmitButton>
         <Button className="w-full" type="submit">
           Register
         </Button>
