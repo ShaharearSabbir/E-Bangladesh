@@ -1,20 +1,22 @@
-"use client"
-import { usePathname } from 'next/navigation';
-import React, { ReactNode } from 'react';
+"use client";
+import { usePathname } from "next/navigation";
+import React from "react";
 
 interface NavbarWrapperProps {
-    children: ReactNode;
+  children: React.ReactElement;
 }
 
 const NavbarWrapper = ({ children }: NavbarWrapperProps) => {
-    const pathName = usePathname();
-    const hiddenRoute = ['/login', '/register'];
+  const pathName = usePathname();
+  const hiddenRoutes = ["/login", "/register"];
 
-    if (hiddenRoute.includes(pathName)) {
-        return null;
-    }
+  const isHidden = hiddenRoutes.some((route) => pathName.startsWith(route));
 
-    return <>{children}</>;
+  if (isHidden) {
+    return null;
+  }
+
+  return children;
 };
 
 export default NavbarWrapper;

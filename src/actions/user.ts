@@ -8,7 +8,7 @@ interface UserData {
   password: string;
 }
 
-interface User {
+export interface User {
   email: string;
   role: string;
   UID: string;
@@ -70,7 +70,6 @@ export const createUser = async (
 };
 
 // getUserData
-
 export const getUserFromDb = async (
   email: string,
   password: string
@@ -90,7 +89,13 @@ export const getUserFromDb = async (
     throw new Error("Password doesn't match");
   }
 
-  return userData;
+  const user: User = {
+    email: userData.email,
+    role: userData.role,
+    UID: userData.UID,
+  };
+
+  return user;
 };
 
 // Hashing
@@ -117,14 +122,10 @@ export const verifyPassword = async (password: string, storedHash: string) => {
 };
 
 // Generate random UID
-
 const generateUid = () => {
-  // Use the current timestamp to ensure uniqueness over time
   const timestamp = new Date().getTime();
 
-  // Generate a random number between 0 and 1, then convert to a string
   const random = Math.random().toString(36).substring(2, 10);
 
-  // Combine them to create a unique ID
   return `${timestamp}${random}`;
 };
