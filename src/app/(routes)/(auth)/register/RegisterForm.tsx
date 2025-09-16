@@ -1,5 +1,6 @@
 "use client";
 
+import { createUser } from "@/actions/user";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,23 +19,37 @@ interface RegisterFormValues {
 const RegisterForm = () => {
   const router = useRouter();
 
-  const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterFormValues>();
 
-  const formSubmit: SubmitHandler<RegisterFormValues> = (data) => {
+  const formSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
     if (data.password !== data.confirmPassword) {
-      toast.error("Password Didn't match")
+      toast.error("Password Didn't match");
       return;
     }
 
-    console.log("Form Data:", data);
-    // createUser(data) -> redirect if success
+    const payload = {
+      email: data.email,
+      password: data.password,
+    };
+
+    const res = await createUser(payload);
+    if (!res.acknowledged) {
+      toast.error(res.message);
+    }
+
     router.push("/");
   };
 
   return (
     <div className="w-sm pb-8 bg-white dark:bg-gray-900 rounded-2xl p-6">
-      <form onSubmit={handleSubmit(formSubmit)} className="flex flex-col items-center justify-center gap-6">
-
+      <form
+        onSubmit={handleSubmit(formSubmit)}
+        className="flex flex-col items-center justify-center gap-6"
+      >
         <div className="grid w-full max-w-sm items-start gap-1">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -43,7 +58,9 @@ const RegisterForm = () => {
             placeholder="Email"
             {...register("email", { required: "Email is required" })}
           />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email.message}</p>}
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email.message}</p>
+          )}
         </div>
 
         <div className="grid w-full max-w-sm items-start gap-1">
@@ -54,7 +71,9 @@ const RegisterForm = () => {
             placeholder="Password"
             {...register("password", { required: "Password is required" })}
           />
-          {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password.message}</p>
+          )}
         </div>
 
         <div className="grid w-full max-w-sm items-start gap-1">
@@ -63,16 +82,26 @@ const RegisterForm = () => {
             type="password"
             id="confirmPassword"
             placeholder="Confirm Password"
-            {...register("confirmPassword", { required: "Confirm Password is required" })}
+            {...register("confirmPassword", {
+              required: "Confirm Password is required",
+            })}
           />
-          {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
+          {errors.confirmPassword && (
+            <p className="text-red-500 text-sm">
+              {errors.confirmPassword.message}
+            </p>
+          )}
         </div>
 
-        <Button className="w-full" type="submit">Register</Button>
+        <Button className="w-full" type="submit">
+          Register
+        </Button>
 
         <p className="text-center text-sm">
           Already have an account?{" "}
-          <Link href="/login" className="font-semibold underline">Login</Link>
+          <Link href="/login" className="font-semibold underline">
+            Login
+          </Link>
         </p>
       </form>
     </div>

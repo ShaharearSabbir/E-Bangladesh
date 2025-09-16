@@ -1,4 +1,5 @@
 "use server";
+import { signIn } from "@/auth";
 import connectDB from "@/lib/connectDB";
 import bcrypt from "bcrypt";
 import { Collection, WithId } from "mongodb";
@@ -8,7 +9,7 @@ interface UserData {
   password: string;
 }
 
-interface User {
+export interface User {
   email: string;
   role: string;
   UID: string;
@@ -27,6 +28,11 @@ interface UserOnDatabase {
   role: string;
   createdAt: string;
   UID: string;
+}
+
+interface LoginData {
+  email: string;
+  password: string;
 }
 
 // Create User
@@ -51,6 +57,8 @@ export const createUser = async (
   const result = await collection.insertOne(newUser);
 
   if (result.insertedId) {
+    signIn("credentials", userData);
+
     const sendResult: FunctionReturns = {
       status: 201,
       message: "Account created successfully",
@@ -71,6 +79,10 @@ export const createUser = async (
 
 // getUserData
 
+export const login = async (data: LoginData) => {
+  await signIn("credentials", { ...data, callbackUrl: "/" });
+};
+
 export const getUserFromDb = async (
   email: string,
   password: string
@@ -90,7 +102,13 @@ export const getUserFromDb = async (
     throw new Error("Password doesn't match");
   }
 
-  return userData;
+  const user: User = {
+    email: userData.email,
+    role: userData.role,
+    UID: userData.UID,
+  };
+
+  return user;
 };
 
 // Hashing
