@@ -1,15 +1,8 @@
-export const verifyEmailTemplate = () => {
+function verifyEmailTemplate(userName: string, userId: string, verificationUrl: string) {
     return `
-    <!DOCTYPE html>
-<html lang="en">
+   
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Verification - Government Services</title>
-</head>
-
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6;">
+<div style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6;">
     <table role="presentation" style="width: 100%; border-collapse: collapse;">
         <tr>
             <td style="padding: 20px;">
@@ -52,8 +45,8 @@ export const verifyEmailTemplate = () => {
                                     style="margin: 0 0 10px 0;  font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                                     Email Verification Required</h1>
                                 <p style="margin: 0; color: #6b7280; font-size: 16px; line-height: 1.6;">
-                                    Please verify your email address to complete your account setup
-                                </p>
+                                  Dear <strong>${userName}</strong>, please verify your email address to complete your account setup.
+                              </p>
                             </div>
 
                             <!-- Account Details Box -->
@@ -65,10 +58,9 @@ export const verifyEmailTemplate = () => {
                                         Registration</span>
                                 </div>
 
-                                <p style="margin: 0 0 10px 0; color: #374151; font-size: 14px;"><strong>Email:</strong>
-                                    [user@email.com]</p>
+                                
                                 <p style="margin: 0 0 10px 0; color: #374151; font-size: 14px;"><strong>Account
-                                        ID:</strong> [GOV-123456789]</p>
+                                        ID:</strong>  ${userId}</p>
 
                             </div>
 
@@ -86,7 +78,7 @@ export const verifyEmailTemplate = () => {
 
                             <!-- Verification Button -->
                             <div style="text-align: center; margin: 35px 0;">
-                                <a href="[VERIFICATION_URL]"
+                                <a href="${verificationUrl}"
                                     style="display: inline-block; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4); transition: all 0.3s ease; border: 2px solid transparent;">
                                     ✓ Verify Email Address
                                 </a>
@@ -122,8 +114,8 @@ export const verifyEmailTemplate = () => {
             </td>
         </tr>
     </table>
-</body>
+</div>
 
-</html>
+
     `;
-};
+}

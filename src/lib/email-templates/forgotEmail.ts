@@ -1,15 +1,8 @@
-export const forgotEmailTemplate = () => {
+function forgotEmailTemplate(userId: string, resetEmailLink: string) {
     return `
-   <!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Email Recovery - Government Services</title>
-</head>
 
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
+<div style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f3f4f6;">
     <table role="presentation" style="width: 100%; border-collapse: collapse;">
         <tr>
             <td style="padding: 20px;">
@@ -82,13 +75,10 @@ export const forgotEmailTemplate = () => {
 
                                 <div
                                     style="display: flex; justify-content: space-around; align-items: center; gap: 15px; font-size: 14px;">
+                                    
                                     <div>
-                                        <strong style="color: #374151;">Email:</strong><br>
-                                        <span style="color: #6b7280;">[user@email.com]</span>
-                                    </div>
-                                    <div>
-                                        <strong style="color: #374151;">Account ID:</strong><br>
-                                        <span style="color: #6b7280;">[GOV-123456789]</span>
+                                        <strong style="color: #374151;">Account ID:</strong>
+                                        <span style="color: #6b7280;">${userId}</span>
                                     </div>
 
                                 </div>
@@ -111,7 +101,7 @@ export const forgotEmailTemplate = () => {
 
                             <!-- Email Reset Button -->
                             <div style="text-align: center; margin: 35px 0;">
-                                <a href="[RESET_EMAIL_URL]" target="_blank"
+                                <a href="${resetEmailLink}" target="_blank"
                                     style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4); transition: all 0.3s ease; border: 2px solid transparent;">
                                     Reset Email Now
                                 </a>
@@ -182,8 +172,8 @@ export const forgotEmailTemplate = () => {
             </td>
         </tr>
     </table>
-</body>
+</div>
 
-</html>
+
     `;
 };
