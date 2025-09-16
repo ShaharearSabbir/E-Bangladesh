@@ -1,5 +1,6 @@
 import React from "react";
 import { useFormStatus } from "react-dom";
+import { Button } from "./ui/button";
 
 interface SubmitProps {
   loadingText: string;
@@ -10,14 +11,14 @@ interface SubmitProps {
 const SubmitButton = ({ loadingText, submitText, className }: SubmitProps) => {
   const { pending } = useFormStatus();
   return (
-    <button
+    <Button
       className={`keeping temp string if frontend dev wanna add something ${
         className && className
       }`}
       disabled={pending}
     >
       {pending ? loadingText : submitText}
-    </button>
+    </Button>
   );
 };
 
