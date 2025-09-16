@@ -1,5 +1,7 @@
 "use client";
 
+import { createUser } from "@/actions/user";
+import SubmitButton from "@/components/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,15 +22,18 @@ const RegisterForm = () => {
 
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>();
 
-  const formSubmit: SubmitHandler<RegisterFormValues> = (data) => {
+  const formSubmit: SubmitHandler<RegisterFormValues> = async (data) => {
     if (data.password !== data.confirmPassword) {
       toast.error("Password Didn't match")
       return;
     }
 
-    console.log("Form Data:", data);
-    // createUser(data) -> redirect if success
-    router.push("/");
+    // console.log("Form Data:", data);
+    const res = await createUser(data);
+    if (res.acknowledged) {
+      toast.success(res.message);
+      router.push("/");
+    }
   };
 
   return (
@@ -68,7 +73,9 @@ const RegisterForm = () => {
           {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>}
         </div>
 
-        <Button className="w-full" type="submit">Register</Button>
+        {/* <Button className="w-full" type="submit">Register</Button> */}
+
+        <SubmitButton loadingText="Loading..." submitText="Register" className="w-full"></SubmitButton>
 
         <p className="text-center text-sm">
           Already have an account?{" "}

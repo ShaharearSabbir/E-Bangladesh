@@ -25,6 +25,7 @@ const connectDB = async (collectionName: string): Promise<Collection> => {
       strict: true,
       deprecationErrors: true,
     },
+    tls: true
   });
 
   // Connect the client to the server
