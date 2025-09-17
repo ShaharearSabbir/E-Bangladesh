@@ -32,12 +32,7 @@ const RegisterForm = () => {
       toast.error("Password Didn't match");
       return;
     }
-    // console.log("Form Data:", data);
-    const res = await createUser(data);
-    if (res.acknowledged) {
-      toast.success(res.message);
-      router.push("/");
-    }
+
     const payload = {
       email: data.email,
       password: data.password,
@@ -46,10 +41,11 @@ const RegisterForm = () => {
     const res = await createUser(payload);
     if (!res.acknowledged) {
       toast.error(res.message);
+    } else {
+      toast.success("User Registration Successful")
     }
 
     await signIn("credentials", { ...payload, redirect: false });
-
     router.push("/");
   };
 
@@ -105,9 +101,6 @@ const RegisterForm = () => {
         {/* <Button className="w-full" type="submit">Register</Button> */}
 
         <SubmitButton loadingText="Loading..." submitText="Register" className="w-full"></SubmitButton>
-        <Button className="w-full" type="submit">
-          Register
-        </Button>
 
         <p className="text-center text-sm">
           Already have an account?{" "}

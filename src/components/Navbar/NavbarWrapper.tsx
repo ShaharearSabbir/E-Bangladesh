@@ -3,20 +3,20 @@ import { usePathname } from "next/navigation";
 import React from "react";
 
 interface NavbarWrapperProps {
-  children: React.ReactElement;
+    children: React.ReactElement;
 }
 
 const NavbarWrapper = ({ children }: NavbarWrapperProps) => {
-  const pathName = usePathname();
-  const hiddenRoutes = ["/login", "/register"];
+    const pathName = usePathname();
+    const hiddenRoutes = ["/login", "/register", "/dashboard"];
 
-  const isHidden = hiddenRoutes.some((route) => pathName.startsWith(route));
+    const isHidden = hiddenRoutes.some((route) => pathName.startsWith(route));
 
-  if (isHidden) {
-    return null;
-  }
+    if (isHidden) {
+        return null;
+    }
 
-  return children;
+    return children;
 };
 
 export default NavbarWrapper;

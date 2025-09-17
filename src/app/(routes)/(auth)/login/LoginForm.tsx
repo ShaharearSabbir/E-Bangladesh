@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
+import { toast } from "sonner";
 
 interface RegisterFormValues {
   email: string;
@@ -28,7 +29,7 @@ const LoginForm = () => {
       const result = await signIn("credentials", { ...data, redirect: false });
 
       if (result?.error) {
-        console.error("Login failed:", result.error);
+        toast.error(result?.error);
       } else {
         router.push("/");
       }
@@ -39,9 +40,6 @@ const LoginForm = () => {
 
   return (
     <div className="w-sm pb-8 bg-white dark:bg-gray-900 rounded-2xl p-6">
-      <Button>
-        <Link href={"/"}>Home</Link>
-      </Button>
       <form
         onSubmit={handleSubmit(formSubmit)}
         className="flex flex-col items-center justify-center gap-6"
