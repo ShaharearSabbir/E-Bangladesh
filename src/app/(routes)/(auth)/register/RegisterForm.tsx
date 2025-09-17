@@ -1,6 +1,7 @@
 "use client";
 
 import { createUser } from "@/actions/user";
+import SubmitButton from "@/components/SubmitButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,10 +41,11 @@ const RegisterForm = () => {
     const res = await createUser(payload);
     if (!res.acknowledged) {
       toast.error(res.message);
+    } else {
+      toast.success("User Registration Successful")
     }
 
     await signIn("credentials", { ...payload, redirect: false });
-
     router.push("/");
   };
 
@@ -96,9 +98,9 @@ const RegisterForm = () => {
           )}
         </div>
 
-        <Button className="w-full" type="submit">
-          Register
-        </Button>
+        {/* <Button className="w-full" type="submit">Register</Button> */}
+
+        <SubmitButton loadingText="Loading..." submitText="Register" className="w-full"></SubmitButton>
 
         <p className="text-center text-sm">
           Already have an account?{" "}

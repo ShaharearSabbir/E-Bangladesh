@@ -72,7 +72,7 @@ export const createUser = async (
 // getUserData
 export const getUserFromDb = async (
   email: string,
-  password: string
+  // password: string
 ): Promise<User> => {
   const collection: Collection = await connectDB("users");
   const userData = (await collection.findOne({
@@ -83,11 +83,11 @@ export const getUserFromDb = async (
     throw new Error("User not found");
   }
 
-  const isMatch = verifyPassword(password, userData.passwordHash);
+  // const isMatch = verifyPassword(password, userData.passwordHash);
 
-  if (!isMatch) {
-    throw new Error("Password doesn't match");
-  }
+  // if (!isMatch) {
+  //   throw new Error("Password doesn't match");
+  // }
 
   const user: User = {
     email: userData.email,

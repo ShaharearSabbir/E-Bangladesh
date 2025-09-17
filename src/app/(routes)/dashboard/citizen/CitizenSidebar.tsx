@@ -1,0 +1,16 @@
+"use client";
+
+import { Card } from "@/components/ui/card";
+import SidebarContent from "../SidebarContent";
+import navigation from "./citizenNavigation"
+
+const CitizenSidebar = () => {
+    return (
+        // Desktop Sidebar only
+        <Card className="hidden md:flex h-screen w-64 rounded-none shadow-lg">
+            <SidebarContent navigation={navigation} />
+        </Card>
+    );
+};
+
+export default CitizenSidebar;
