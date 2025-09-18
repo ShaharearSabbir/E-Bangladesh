@@ -1,5 +1,3 @@
-import { ObjectId } from "mongodb";
-
 // Refined Address interface
 interface Address {
   division?: string;
@@ -38,6 +36,13 @@ interface FamilyMember {
   dateOfDeath?: string;
 }
 
+// occupation information
+interface Occupation {
+  isGovtEmployee: boolean;
+  companyOrDivision: string;
+  designation: string;
+}
+
 export interface UserOnDatabase {
   UID: string;
   email: string;
@@ -58,7 +63,7 @@ export interface UserOnDatabase {
   placeOfBirth?: string;
   religion?: Religion;
   maritalStatus?: MaritalStatus;
-  occupation?: string;
+  occupation?: Occupation;
   disabilities?: string;
   birthMark?: string;
   educationalQualification?: string;

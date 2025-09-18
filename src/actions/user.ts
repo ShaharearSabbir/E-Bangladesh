@@ -28,6 +28,7 @@ interface UserForAuth {
   role: string;
   createdAt: string;
   UID: string;
+  isVerified: boolean;
 }
 
 const collection: Collection = await connectDB("users");
@@ -58,6 +59,7 @@ export const createUser = async (
     role: "user",
     createdAt: new Date().toISOString(),
     UID: generateUid(),
+    isVerified: false,
   };
 
   //   Storing User Data on DB
