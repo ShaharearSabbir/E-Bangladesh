@@ -1,5 +1,6 @@
 "use server";
 import connectDB from "@/lib/connectDB";
+import { UserOnDatabase } from "@/type/userType";
 import bcrypt from "bcrypt";
 import { Collection, WithId } from "mongodb";
 
@@ -21,13 +22,15 @@ export interface FunctionReturns {
   user?: User;
 }
 
-interface UserOnDatabase {
+interface UserForAuth {
   email: string;
   passwordHash: string;
   role: string;
   createdAt: string;
   UID: string;
 }
+
+const collection: Collection = await connectDB("users");
 
 // Create User
 export const createUser = async (
@@ -36,16 +39,26 @@ export const createUser = async (
   const passwordHash = (await hashPassword(userData.password)) as string;
   const email = userData.email;
 
+  const isUser = await collection.findOne({ email });
+
+  if (isUser) {
+    const sendResult: FunctionReturns = {
+      status: 409,
+      message: "Account exist with this email",
+      acknowledged: false,
+    };
+
+    return sendResult;
+  }
+
   //   New User Data
-  const newUser: UserOnDatabase = {
+  const newUser: UserForAuth = {
     email,
     passwordHash,
     role: "user",
     createdAt: new Date().toISOString(),
     UID: generateUid(),
   };
-
-  const collection: Collection = await connectDB("users");
 
   //   Storing User Data on DB
   const result = await collection.insertOne(newUser);
@@ -69,25 +82,24 @@ export const createUser = async (
   return sendResult;
 };
 
-// getUserData
+// getUserDataForAuth
 export const getUserFromDb = async (
   email: string,
-  // password: string
+  password: string
 ): Promise<User> => {
-  const collection: Collection = await connectDB("users");
   const userData = (await collection.findOne({
     email,
-  })) as WithId<UserOnDatabase>;
+  })) as WithId<UserForAuth>;
 
   if (!userData) {
     throw new Error("User not found");
   }
 
-  // const isMatch = verifyPassword(password, userData.passwordHash);
+  const isMatch = verifyPassword(password, userData.passwordHash);
 
-  // if (!isMatch) {
-  //   throw new Error("Password doesn't match");
-  // }
+  if (!isMatch) {
+    throw new Error("Password doesn't match");
+  }
 
   const user: User = {
     email: userData.email,
@@ -98,9 +110,38 @@ export const getUserFromDb = async (
   return user;
 };
 
+// get user data
+export const getUser = async (
+  UID: string
+): Promise<WithId<UserOnDatabase> | null> => {
+  const user = (await collection.findOne({
+    UID,
+  })) as WithId<UserOnDatabase> | null;
+
+  if (!user) {
+    console.warn(`No user found with UID: ${UID}`);
+    return null;
+  }
+
+  return user;
+};
+
+// get role
+export const getRole = async (UID: string): Promise<string | null> => {
+  const getRoleFromDatabase = await collection
+    .aggregate([{ $match: { UID } }, { $project: { _id: 0, role: 1 } }])
+    .toArray();
+
+  if (getRoleFromDatabase.length > 0) {
+    const result = getRoleFromDatabase[0] as { role: UserOnDatabase["role"] };
+    return result.role;
+  }
+
+  return null;
+};
+
 // Hashing
 const saltRounds = 10;
-
 const hashPassword = async (password: string) => {
   try {
     const hash = await bcrypt.hash(password, saltRounds);
