@@ -3,7 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar/Navbar";
 import { Toaster } from "sonner";
-import BirthCertificatePage from "@/components/BirthForm/BirthCertificatePage";
+import { auth } from "@/auth";
 
 const InterSans = Inter({
   variable: "--font-geist-sans",
@@ -15,16 +15,16 @@ export const metadata: Metadata = {
   description: "Digital service for a connected nation",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html lang="en">
       <body className={`${InterSans.variable} antialiased`}>
         <Navbar />
-        <BirthCertificatePage />
         {children}
         <Toaster richColors position="top-right" />
       </body>

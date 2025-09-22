@@ -12,9 +12,8 @@ const SubmitButton = ({ loadingText, submitText, className }: SubmitProps) => {
   const { pending } = useFormStatus();
   return (
     <Button
-      className={`keeping temp string if frontend dev wanna add something ${
-        className && className
-      }`}
+      className={`bg-primary ${className && className
+        }`}
       disabled={pending}
     >
       {pending ? loadingText : submitText}
