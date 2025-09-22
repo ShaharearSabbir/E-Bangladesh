@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar/Navbar";
 import { Toaster } from "sonner";
+import BirthCertificatePage from "@/components/BirthForm/BirthCertificatePage";
 
 const InterSans = Inter({
   variable: "--font-geist-sans",
@@ -23,6 +24,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${InterSans.variable} antialiased`}>
         <Navbar />
+        <BirthCertificatePage />
         {children}
         <Toaster richColors position="top-right" />
       </body>
