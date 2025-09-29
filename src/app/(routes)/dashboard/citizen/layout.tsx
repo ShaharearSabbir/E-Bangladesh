@@ -8,7 +8,7 @@ const layout = ({ children }: { children: React.ReactElement }) => {
       <CitizenSidebar />
       <div className="flex-1 flex flex-col">
         <DashboardNavbar />
-        <main className="p-4">{children}</main>
+        <main className="">{children}</main>
       </div>
     </div>
   )
