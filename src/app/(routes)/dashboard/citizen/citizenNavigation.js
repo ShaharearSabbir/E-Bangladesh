@@ -16,27 +16,27 @@ const navigation = [
     },
     {
         name: "Birth Certificate",
-        href: "/birth-certificate",
+        href: "/dashboard/citizen/birth-certificate",
         icon: FileText,
     },
     {
         name: "National ID",
-        href: "/national-id",
+        href: "/dashboard/citizen/national-id",
         icon: IdCard,
     },
     {
         name: "Passport",
-        href: "/passport",
+        href: "/dashboard/citizen/passport",
         icon: FileText,
     },
     {
         name: "Tax",
-        href: "/tax",
+        href: "/dashboard/citizen/tax",
         icon: DollarSign,
     },
     {
         name: "Complaint",
-        href: "/complaint",
+        href: "/dashboard/citizen/complaint",
         icon: MessageSquare,
     },
     // {
