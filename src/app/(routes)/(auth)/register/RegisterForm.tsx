@@ -42,7 +42,7 @@ const RegisterForm = () => {
     if (!res.acknowledged) {
       toast.error(res.message);
     } else {
-      toast.success("User Registration Successful")
+      toast.success("User Registration Successful. Verification email sent!")
     }
 
     await signIn("credentials", { ...payload, redirect: false });
