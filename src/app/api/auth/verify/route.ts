@@ -31,7 +31,7 @@ export async function userAction(
 
       await collection.updateOne(
         { email: decodedEmail },
-        { $set: { isVerified: true }, $unset: { verificationCode: "" } }
+        { $set: { isVerified: true } }
       );
 
       console.log("Email verified successfully for:", decodedEmail);
@@ -58,7 +58,7 @@ export async function userAction(
 
       await collection.updateOne(
         { email: decodedEmail },
-        { $set: { passwordHash: hashedPassword }, $unset: { verificationCode: "" } }
+        { $set: { passwordHash: hashedPassword } }
       );
 
       console.log("Password reset successfully for:", decodedEmail);
