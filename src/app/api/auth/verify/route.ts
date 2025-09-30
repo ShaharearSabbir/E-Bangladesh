@@ -53,7 +53,7 @@ export async function userAction(
       }
 
       // Password hashing
-      const hashedPassword = `hashed-${newPassword}`;
+      const hashedPassword = newPassword;
       console.log("Hashed password:", hashedPassword);
 
       await collection.updateOne(
