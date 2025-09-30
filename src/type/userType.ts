@@ -91,3 +91,4 @@ export interface UserOnDatabase {
   spouse?: FamilyMember[];
   siblings?: FamilyMember[];
 }
+
