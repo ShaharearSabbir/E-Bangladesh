@@ -34,8 +34,6 @@ const obj: Card[] = [
         bg: "bg-green-500",
     },
 ];
-
-
 const Page: React.FC = () => {
     return (
         <div className="px-10 mt-6">
