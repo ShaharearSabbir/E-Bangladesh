@@ -1,49 +1,70 @@
-"use client";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import React from "react";
+import { useFormContext } from "react-hook-form";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
-interface Step3Props {
-  nextStep: () => void;
-  prevStep: () => void;
-}
-
-interface DocumentFormValues {
-  birthProof: FileList;
-  addressProof: FileList;
-}
-
-const Step3Documents: React.FC<Step3Props> = ({ nextStep, prevStep }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<DocumentFormValues>();
-
-  const onSubmit: SubmitHandler<DocumentFormValues> = (data) => {
-    console.log("Step3 Data:", data);
-    nextStep();
-  };
+export default function Step3() {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <h2 className="text-xl font-semibold">Step 3: Documents</h2>
+    <div className="space-y-6 max-w-6xl">
+      <h2 className="text-lg font-semibold">Step 3: Proof & Documents</h2>
+
+      {/* Proof of Birth */}
+      <div>
+        <Label className="mb-1 block">Proof of Birth</Label>
+        <Input
+          type="file"
+          {...register("proofOfBirth", { required: "Proof of Birth is required" })}
+        />
+        {errors.proofOfBirth && (
+          <p className="text-red-500 text-sm">{errors.proofOfBirth.message as string}</p>
+        )}
+      </div>
+
+      {/* Proof of Permanent Address */}
+      <div>
+        <Label className="mb-1 block">Proof of Permanent Address</Label>
+        <Input
+          type="file"
+          {...register("proofOfAddress", { required: "Proof of Address is required" })}
+        />
+        {errors.proofOfAddress && (
+          <p className="text-red-500 text-sm">{errors.proofOfAddress.message as string}</p>
+        )}
+      </div>
+
+      {/* Additional Documents */}
+      <div>
+        <Label className="mb-1 block">Additional Documents (if applicable)</Label>
+        <Input type="file" multiple {...register("additionalDocs")} />
+      </div>
+
+      {/* House No & Street */}
+      <div>
+        <Label className="mb-1 block">House No & Street (Bangla)</Label>
+        <Input
+          {...register("houseBangla", { required: "House No & Street (Bangla) is required" })}
+          placeholder="বাড়ি নম্বর ও রাস্তা"
+        />
+        {errors.houseBangla && (
+          <p className="text-red-500 text-sm">{errors.houseBangla.message as string}</p>
+        )}
+      </div>
 
       <div>
-        <Label htmlFor="birthProof">Proof of Birth</Label>
-        <Input type="file" id="birthProof" {...register("birthProof", { required: true })} />
-        {errors.birthProof && <p className="text-red-500 text-sm">Required</p>}
+        <Label className="mb-1 block">House No & Street (English)</Label>
+        <Input
+          {...register("houseEnglish", { required: "House No & Street (English) is required" })}
+          placeholder="House & Street"
+        />
+        {errors.houseEnglish && (
+          <p className="text-red-500 text-sm">{errors.houseEnglish.message as string}</p>
+        )}
       </div>
-
-      <div>
-        <Label htmlFor="addressProof">Proof of Permanent Address</Label>
-        <Input type="file" id="addressProof" {...register("addressProof", { required: true })} />
-        {errors.addressProof && <p className="text-red-500 text-sm">Required</p>}
-      </div>
-
-      <div className="flex justify-between">
-        <Button type="button" onClick={prevStep} variant="outline">Back</Button>
-        <Button type="submit">Next</Button>
-      </div>
-    </form>
+    </div>
   );
-};
-
-export default Step3Documents;
+}

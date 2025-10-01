@@ -1,72 +1,132 @@
-"use client";
-import { useForm, SubmitHandler } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+import React from "react";
+import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-interface Step2Props {
-  nextStep: () => void;
-  prevStep: () => void;
-}
-
-interface ParentsFormValues {
-  fatherNameBangla: string;
-  fatherNameEnglish: string;
-  motherNameBangla: string;
-  motherNameEnglish: string;
-  fatherNid: string;
-  motherNid: string;
-}
-
-const Step2ParentsInfo: React.FC<Step2Props> = ({ nextStep, prevStep }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<ParentsFormValues>();
-
-  const onSubmit: SubmitHandler<ParentsFormValues> = (data) => {
-    console.log("Step2 Data:", data);
-    nextStep();
-  };
+export default function Step2() {
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext();
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <h2 className="text-xl font-semibold">Step 2: Parents Information</h2>
+    <div className="space-y-6 max-w-6xl">
+      <h2 className="text-lg font-semibold">Step 2: Parents’ Information</h2>
 
-      <div>
-        <Label htmlFor="fatherNameBangla">Father’s Name (Bangla)</Label>
-        <Input id="fatherNameBangla" {...register("fatherNameBangla", { required: true })} />
-        {errors.fatherNameBangla && <p className="text-red-500 text-sm">Required</p>}
-      </div>
+      <div className="grid grid-cols-2 gap-10">
+        {/* Father Name */}
+        <div className="space-y-4">
+          <div>
+            <Label className="mb-1 block">Father’s Full Name (Bangla)</Label>
+            <Input
+              {...register("fatherNameBangla", { required: "Father's name (Bangla) is required" })}
+              placeholder="পিতার নাম"
+            />
+            {errors.fatherNameBangla && (
+              <p className="text-red-500 text-sm">{errors.fatherNameBangla.message as string}</p>
+            )}
+          </div>
 
-      <div>
-        <Label htmlFor="fatherNameEnglish">Father’s Name (English)</Label>
-        <Input id="fatherNameEnglish" {...register("fatherNameEnglish", { required: true })} />
-      </div>
+          <div>
+            <Label className="mb-1 block">Father’s Full Name (English)</Label>
+            <Input
+              {...register("fatherNameEnglish", { required: "Father's name (English) is required" })}
+              placeholder="Father's Name"
+            />
+            {errors.fatherNameEnglish && (
+              <p className="text-red-500 text-sm">{errors.fatherNameEnglish.message as string}</p>
+            )}
+          </div>
 
-      <div>
-        <Label htmlFor="motherNameBangla">Mother’s Name (Bangla)</Label>
-        <Input id="motherNameBangla" {...register("motherNameBangla", { required: true })} />
-      </div>
+          <div>
+            <Label className="mb-1 block">Father’s ID (NID/Passport)</Label>
+            <Input
+              {...register("fatherID", {
+                required: "Father’s ID is required",
+                minLength: { value: 10, message: "ID must be at least 10 digits" },
+              })}
+              placeholder="e.g., NID or Passport"
+              type="number"
+            />
+            {errors.fatherID && (
+              <p className="text-red-500 text-sm">{errors.fatherID.message as string}</p>
+            )}
+          </div>
+        </div>
 
-      <div>
-        <Label htmlFor="motherNameEnglish">Mother’s Name (English)</Label>
-        <Input id="motherNameEnglish" {...register("motherNameEnglish", { required: true })} />
-      </div>
+        {/* Mother Name */}
+        <div className="space-y-4">
+          <div>
+            <Label className="mb-1 block">Mother’s Full Name (Bangla)</Label>
+            <Input
+              {...register("motherNameBangla", { required: "Mother's name (Bangla) is required" })}
+              placeholder="মায়ের নাম"
+            />
+            {errors.motherNameBangla && (
+              <p className="text-red-500 text-sm">{errors.motherNameBangla.message as string}</p>
+            )}
+          </div>
 
-      <div>
-        <Label htmlFor="fatherNid">Father’s NID/Passport</Label>
-        <Input id="fatherNid" {...register("fatherNid", { required: true })} />
-      </div>
+          <div>
+            <Label className="mb-1 block">Mother’s Full Name (English)</Label>
+            <Input
+              {...register("motherNameEnglish", { required: "Mother's name (English) is required" })}
+              placeholder="Mother's Name"
+            />
+            {errors.motherNameEnglish && (
+              <p className="text-red-500 text-sm">{errors.motherNameEnglish.message as string}</p>
+            )}
+          </div>
 
-      <div>
-        <Label htmlFor="motherNid">Mother’s NID/Passport</Label>
-        <Input id="motherNid" {...register("motherNid", { required: true })} />
-      </div>
+          <div>
+            <Label className="mb-1 block">Mother’s ID (NID/Passport)</Label>
+            <Input
+              {...register("motherID", {
+                required: "Mother’s ID is required",
+                minLength: { value: 10, message: "ID must be at least 10 digits" },
+              })}
+              placeholder="e.g., NID or Passport"
+              type="number"
+            />
+            {errors.motherID && (
+              <p className="text-red-500 text-sm">{errors.motherID.message as string}</p>
+            )}
+          </div>
+        </div>
 
-      <div className="flex justify-between">
-        <Button type="button" onClick={prevStep} variant="outline">Back</Button>
-        <Button type="submit">Next</Button>
+        {/* Parent Info */}
+        <div>
+          <Label className="mb-1 block">Occupation of Father</Label>
+          <Input {...register("fatherOccupation")} placeholder="Father Occupation" />
+        </div>
+
+        <div>
+          <Label className="mb-1 block">Occupation of Mother</Label>
+          <Input {...register("motherOccupation")} placeholder="Mother Occupation" />
+        </div>
+
+        <div>
+          <Label className="mb-1 block">Nationality of Parents</Label>
+          <Input {...register("parentsNationality", { required: "Nationality is required" })} placeholder="Nationality" />
+          {errors.parentsNationality && (
+            <p className="text-red-500 text-sm">{errors.parentsNationality.message as string}</p>
+          )}
+        </div>
+
+        {/* Permanent Address */}
+        <div>
+          <Label className="mb-1 block">Permanent Address</Label>
+          <Input {...register("permanentAddress", { required: "Permanent address is required" })} placeholder="Village / Neighborhood" />
+          {errors.permanentAddress && (
+            <p className="text-red-500 text-sm">{errors.permanentAddress.message as string}</p>
+          )}
+        </div>
+
+        <div>
+          <Label className="mb-1 block">Village / Neighborhood (English)</Label>
+          <Input {...register("villageEnglish")} placeholder="Village / Neighborhood" />
+        </div>
       </div>
-    </form>
+    </div>
   );
-};
-
-export default Step2ParentsInfo;
+}

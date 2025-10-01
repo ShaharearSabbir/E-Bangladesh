@@ -5,7 +5,7 @@ import MultiStepForm from "./MultiStepForm";
 
 const BirthCertificatePage = () => {
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className=" mx-auto">
       <MultiStepForm />
     </div>
   );
