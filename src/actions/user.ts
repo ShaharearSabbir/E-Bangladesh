@@ -1,5 +1,6 @@
 "use server";
 import connectDB from "@/lib/connectDB";
+import { sendVerificationEmail } from "@/sendVerificationEmail";
 import { UserOnDatabase } from "@/type/userType";
 import bcrypt from "bcrypt";
 import { Collection, WithId } from "mongodb";
@@ -19,7 +20,11 @@ export interface FunctionReturns {
   status: number;
   message: string;
   acknowledged: boolean;
-  user?: User;
+  user?: {
+    email: string;
+    UID: string;
+    role: string;
+  };
 }
 
 interface UserForAuth {
@@ -29,6 +34,7 @@ interface UserForAuth {
   createdAt: string;
   UID: string;
   isVerified: boolean;
+  verificationCode: string
 }
 
 const collection: Collection = await connectDB("users");
@@ -48,7 +54,6 @@ export const createUser = async (
       message: "Account exist with this email",
       acknowledged: false,
     };
-
     return sendResult;
   }
 
@@ -60,16 +65,29 @@ export const createUser = async (
     createdAt: new Date().toISOString(),
     UID: generateUid(),
     isVerified: false,
+    verificationCode: generateVerificationCode().toString(), // store code in DB
   };
 
   //   Storing User Data on DB
   const result = await collection.insertOne(newUser);
 
   if (result.insertedId) {
+    //  Send verification email after successful insert
+    const verificationLink = `${process.env.NEXT_PUBLIC_URL}/verify-email?code=${newUser.verificationCode}&email=${newUser.email}`;
+    await sendVerificationEmail(
+      newUser.email,
+      `Click the link to verify your account: ${verificationLink}`
+    );
+
     const sendResult: FunctionReturns = {
       status: 201,
-      message: "Account created successfully",
+      message: "Account created successfully. Please verify your email.",
       acknowledged: true,
+      user: {
+        email: newUser.email,
+        UID: newUser.UID,
+        role: newUser.role,
+      },
     };
 
     return sendResult;
@@ -171,4 +189,9 @@ const generateUid = () => {
   const random = Math.random().toString(36).substring(2, 10);
 
   return `${timestamp}${random}`;
+};
+
+// Generate verification code
+const generateVerificationCode = (): string => {
+  return Math.floor(100000 + Math.random() * 900000).toString();
 };
