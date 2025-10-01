@@ -1,317 +1,286 @@
-"use client";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import { Button } from "@/components/ui/button";
+// Step1ChildInfo.tsx
+import React, { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { useState } from "react";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import axios from "axios";
 
-interface Step1Props {
-    nextStep: () => void;
-}
+// ✅ Types
+type Division = { division: string };
+type District = { district: string };
 
-interface ChildFormValues {
-    childFirstName: string;
-    childLastName: string;
-    childFirstNameEnglish: string;
-    childLastNameEnglish: string;
-    dateOfBirth: Date | undefined;
-    birthOrder: string;
-    gender: string;
-    country: string;
-    division: string;
-    district: string;
-    upazilaOrCityOrCantonment: string;
-    unionOrMunicipalityOrWard: string;
-    postOffice: string;
-    village: string;
-    house: string;
+const Step1ChildInfo = () => {
+    const {
+        register,
+        setValue,
+        formState: { errors },
+    } = useFormContext();
 
-}
+    const [divisions, setDivisions] = useState<Division[]>([]);
+    const [districts, setDistricts] = useState<District[]>([]);
+    const [thanas, setThanas] = useState<string[]>([]);
+    const [open, setOpen] = React.useState(false);
+    const [date, setDate] = React.useState<Date | undefined>(undefined);
 
-const divisionDistricts: Record<string, string[]> = {
-    Dhaka: [
-        "Dhaka", "Gazipur", "Kishoreganj", "Manikganj", "Munshiganj",
-        "Narayanganj", "Narsingdi", "Rajbari", "Shariatpur", "Tangail",
-        "Faridpur", "Gopalganj", "Madaripur",
-    ],
-    Chattogram: [
-        "Chattogram", "Cox's Bazar", "Bandarban", "Khagrachhari", "Rangamati",
-        "Noakhali", "Lakshmipur", "Feni", "Cumilla", "Brahmanbaria", "Chandpur",
-    ],
-    Khulna: [
-        "Khulna", "Bagerhat", "Chuadanga", "Jashore", "Jhenaidah", "Kushtia",
-        "Magura", "Meherpur", "Narail", "Satkhira",
-    ],
-    Rajshahi: [
-        "Rajshahi", "Bogura", "Joypurhat", "Naogaon", "Natore",
-        "Chapai Nawabganj", "Pabna", "Sirajganj",
-    ],
-    Rangpur: [
-        "Rangpur", "Dinajpur", "Gaibandha", "Kurigram", "Lalmonirhat",
-        "Nilphamari", "Panchagarh", "Thakurgaon",
-    ],
-    Sylhet: ["Sylhet", "Habiganj", "Moulvibazar", "Sunamganj"],
-    Barishal: [
-        "Barishal", "Barguna", "Bhola", "Jhalokati", "Patuakhali", "Pirojpur",
-    ],
-    Mymensingh: ["Mymensingh", "Jamalpur", "Netrokona", "Sherpur"],
-};
+    // Error states for API
+    const [divisionError, setDivisionError] = useState<string | null>(null);
+    const [districtError, setDistrictError] = useState<string | null>(null);
+    const [thanaError, setThanaError] = useState<string | null>(null);
 
-const Step1ChildInfo: React.FC<Step1Props> = ({ nextStep }) => {
-    const { register, handleSubmit, setValue, watch, formState: { errors }, control } =
-        useForm<ChildFormValues>();
+    useEffect(() => {
+        axios
+            .get("https://bdapis.com/api/v1.2/divisions")
+            .then(({ data }) => {
+                if (data?.data) {
+                    setDivisions(data.data);
+                    setDivisionError(null);
+                } else {
+                    setDivisionError("No divisions found.");
+                }
+            })
+            .catch(() => setDivisionError("Failed to fetch divisions."));
+    }, []);
 
-    const [date, setDate] = useState<Date>();
-    const selectedDivision = watch("division");
+    const onDivisionChange = (division: string) => {
+        setDistricts([]);
+        setThanas([]);
+        setValue("division", division); // ✅ save in form
+        axios
+            .get(`https://bdapis.com/api/v1.2/division/${division.toLowerCase()}`)
+            .then(({ data }) => {
+                if (data?.data) {
+                    setDistricts(data.data);
+                    setDistrictError(null);
+                } else {
+                    setDistrictError("No districts found.");
+                }
+            })
+            .catch(() => setDistrictError("Failed to fetch districts."));
+    };
 
-    const onSubmit: SubmitHandler<ChildFormValues> = (data) => {
-        const mergedData = { ...data, dateOfBirth: date };
-        console.log("Step1 Data:", mergedData);
-
-        nextStep();
+    const onDistrictChange = (district: string) => {
+        setThanas([]);
+        setValue("district", district); // ✅ save in form
+        axios
+            .get(`https://bdapis.com/api/v1.2/district/${district.toLowerCase()}`)
+            .then(({ data }) => {
+                if (data?.data[0]?.upazillas) {
+                    setThanas(data.data[0].upazillas);
+                    setThanaError(null);
+                } else {
+                    setThanaError("No upazilas found.");
+                }
+            })
+            .catch(() => setThanaError("Failed to fetch upazilas."));
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-6 max-w-6xl">
             <h2 className="text-xl font-semibold">Child’s Information</h2>
-
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Name Fields */}
                 <div className="grid gap-1">
-                    <Label htmlFor="childFirstName">Child First Name (Bangla)</Label>
-                    <Input id="childFirstName" {...register("childFirstName", { required: true })} />
-                    {errors.childFirstName && <p className="text-red-500 text-sm">Required</p>}
+                    <Label>First Name (Bangla)</Label>
+                    <Input {...register("firstNameBangla", { required: "First name (Bangla) is required" })} />
+                    {errors.firstNameBangla && (
+                        <p className="text-red-500 text-sm">{errors.firstNameBangla.message as string}</p>
+                    )}
                 </div>
 
                 <div className="grid gap-1">
-                    <Label htmlFor="childLastName">Child Last Name (Bangla)</Label>
-                    <Input id="childLastName" {...register("childLastName", { required: true })} />
-                    {errors.childLastName && <p className="text-red-500 text-sm">Required</p>}
+                    <Label>Last Name (Bangla)</Label>
+                    <Input {...register("lastNameBangla", { required: "Last name (Bangla) is required" })} />
+                    {errors.lastNameBangla && (
+                        <p className="text-red-500 text-sm">{errors.lastNameBangla.message as string}</p>
+                    )}
                 </div>
 
                 <div className="grid gap-1">
-                    <Label htmlFor="childFirstNameEnglish">Child First Name (English)</Label>
-                    <Input id="childFirstNameEnglish" {...register("childFirstNameEnglish", { required: true })} />
-                    {errors.childFirstNameEnglish && <p className="text-red-500 text-sm">Required</p>}
+                    <Label>First Name (English)</Label>
+                    <Input {...register("firstNameEnglish", { required: "First name (English) is required" })} />
+                    {errors.firstNameEnglish && (
+                        <p className="text-red-500 text-sm">{errors.firstNameEnglish.message as string}</p>
+                    )}
                 </div>
 
                 <div className="grid gap-1">
-                    <Label htmlFor="childLastNameEnglish">Child Last Name (English)</Label>
-                    <Input id="childLastNameEnglish" {...register("childLastNameEnglish", { required: true })} />
-                    {errors.childLastNameEnglish && <p className="text-red-500 text-sm">Required</p>}
+                    <Label>Last Name (English)</Label>
+                    <Input {...register("lastNameEnglish", { required: "Last name (English) is required" })} />
+                    {errors.lastNameEnglish && (
+                        <p className="text-red-500 text-sm">{errors.lastNameEnglish.message as string}</p>
+                    )}
                 </div>
 
-                {/* Date Picker */}
-                <div className="grid gap-1">
-                    <Label>Date of Birth</Label>
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant={"outline"}
-                                className={`justify-start text-left font-normal ${!date ? "text-muted-foreground" : ""}`}
-                            >
-                                <CalendarIcon className="mr-2 h-4 w-4" />
-                                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                {/* DOB */}
+                <div className="flex flex-col gap-1 w-full">
+                    <Label htmlFor="date" className="px-1">Date of birth</Label>
+                    <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild className="w-full">
+                            <Button variant="outline" id="date" className="w-full justify-between font-normal">
+                                {date ? date.toLocaleDateString() : "Select date"}
+                                <ChevronDownIcon />
                             </Button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
+                        <PopoverContent className="w-full overflow-hidden p-0" align="start">
                             <Calendar
                                 mode="single"
                                 selected={date}
-                                onSelect={(selectedDate) => {
-                                    setDate(selectedDate);
-                                    setValue("dateOfBirth", selectedDate);
+                                captionLayout="dropdown"
+                                onSelect={(date) => {
+                                    setDate(date);
+                                    setOpen(false);
+                                    if (date) setValue("dob", date.toISOString(), { shouldValidate: true });
                                 }}
-
                             />
                         </PopoverContent>
                     </Popover>
-                    {/* {error. && <p className="text-red-500 text-sm">Required</p>} */}
+                    {errors.dob && (
+                        <p className="text-red-500 text-sm">{errors.dob.message as string}</p>
+                    )}
                 </div>
 
-                {/* birth order  */}
+                {/* Gender */}
                 <div className="grid gap-1">
-                    <Label htmlFor="birthOrder">Birth Order</Label>
-                    <Controller
-                        name="birthOrder"
-                        control={control}
-                        rules={{ required: "Birth order is required" }}
-                        render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="birthOrder" className="w-full" >
-                                    <SelectValue placeholder="Select Birth Order" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem value="1">1</SelectItem>
-                                        <SelectItem value="2">2</SelectItem>
-                                        <SelectItem value="3">3</SelectItem>
-                                        <SelectItem value="4">4</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                    {errors.birthOrder && <p className="text-red-500 text-sm">Required</p>}
-                </div>
-                {/* gender  */}
-                <div className="grid gap-1">
-                    <Label htmlFor="gender">Gender</Label>
-                    <Controller
-                        name="gender"
-                        control={control}
-                        rules={{ required: "gender is required" }}
-                        render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="gender" className="w-full" >
-                                    <SelectValue placeholder="Select a Gender" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem value="Male">Male</SelectItem>
-                                        <SelectItem value="Female">Female</SelectItem>
-                                        <SelectItem value="Third Gender">Third gender</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
-                    {errors.gender && <p className="text-red-500 text-sm">Required</p>}
-                </div>
-            </div>
-
-            <h2 className="text-xl font-semibold">Place of Birth Details</h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* country      */}
-                <div className="grid gap-1">
-                    <Label htmlFor="country">Country</Label>
-                    <Controller
-                        name="country"
-                        control={control}
-                        rules={{ required: "country is required" }}
-                        render={({ field }) => (
-                            <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger id="country" className="w-full" >
-                                    <SelectValue placeholder="--Select a Country" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem value="Bangladesh">Bangladesh</SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
+                    <Label>Gender</Label>
+                    <Select onValueChange={(val) => setValue("gender", val, { shouldValidate: true })}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="male">Male</SelectItem>
+                            <SelectItem value="female">Female</SelectItem>
+                            <SelectItem value="third">Third Gender</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    {errors.gender && (
+                        <p className="text-red-500 text-sm">{errors.gender.message as string}</p>
+                    )}
                 </div>
 
-                {/* division  */}
-
+                {/* Birth Order */}
                 <div className="grid gap-1">
-                    <Label htmlFor="division" >Select Division</Label>
-                    <Controller
-                        name="division"
-                        control={control}
-                        rules={{ required: "Division is required" }}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value}
-                                onValueChange={(val) => {
-                                    field.onChange(val);
-                                }}
-                            >
-                                <SelectTrigger id="division" className="w-full">
-                                    <SelectValue placeholder="-- Select Division --" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {Object.keys(divisionDistricts).map((division) => (
-                                        <SelectItem key={division} value={division}>
-                                            {division}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
+                    <Label>Birth Order</Label>
+                    <Input {...register("birthOrder", { required: "Birth order is required" })} />
+                    {errors.birthOrder && (
+                        <p className="text-red-500 text-sm">{errors.birthOrder.message as string}</p>
+                    )}
+                </div>
+
+                {/* Country */}
+                <div className="grid gap-1">
+                    <Label>Country</Label>
+                    <Input {...register("country", { required: "Country is required" })} />
+                    {errors.country && (
+                        <p className="text-red-500 text-sm">{errors.country.message as string}</p>
+                    )}
+                </div>
+
+                {/* Division */}
+                <div className="grid gap-1">
+                    <Label>Division</Label>
+                    <Select onValueChange={onDivisionChange}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select Division" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {divisions.map((division) => (
+                                <SelectItem key={division.division} value={division.division}>
+                                    {division.division}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {divisionError && <p className="text-red-500 text-sm">{divisionError}</p>}
                     {errors.division && (
-                        <p className="text-red-500 text-sm">{errors.division.message}</p>
+                        <p className="text-red-500 text-sm">{errors.division.message as string}</p>
                     )}
                 </div>
 
-                {/* district  */}
+                {/* District */}
                 <div className="grid gap-1">
-                    <Label htmlFor="district">Select District</Label>
-                    <Controller
-                        name="district"
-                        control={control}
-                        rules={{ required: "District is required" }}
-                        render={({ field }) => (
-                            <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                                disabled={!selectedDivision}
-                            >
-                                <SelectTrigger id="district" className="w-full">
-                                    <SelectValue placeholder="-- Select District --" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {selectedDivision &&
-                                        divisionDistricts[selectedDivision].map((district) => (
-                                            <SelectItem key={district} value={district}>
-                                                {district}
-                                            </SelectItem>
-                                        ))}
-                                </SelectContent>
-                            </Select>
-                        )}
-                    />
+                    <Label>District</Label>
+                    <Select onValueChange={onDistrictChange}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select District" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {districts.map((d) => (
+                                <SelectItem key={d.district} value={d.district}>
+                                    {d.district}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {districtError && <p className="text-red-500 text-sm">{districtError}</p>}
                     {errors.district && (
-                        <p className="text-red-500 text-sm">{errors.district.message}</p>
+                        <p className="text-red-500 text-sm">{errors.district.message as string}</p>
                     )}
                 </div>
-                {/* upazilaOrCityOrCantonment */}
+
+                {/* Thana */}
                 <div className="grid gap-1">
-                    <Label htmlFor="upazilaOrCityOrCantonment">Upazila/City/Cantonment</Label>
-                    <Input id="upazilaOrCityOrCantonment" {...register("upazilaOrCityOrCantonment", { required: true })} />
-                    {errors.upazilaOrCityOrCantonment && <p className="text-red-500 text-sm">Required</p>}
+                    <Label>Upazila / Thana</Label>
+                    <Select onValueChange={(val) => setValue("upazila", val, { shouldValidate: true })}>
+                        <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select Upazila/Thana" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {thanas.map((thana) => (
+                                <SelectItem key={thana} value={thana}>
+                                    {thana}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {thanaError && <p className="text-red-500 text-sm">{thanaError}</p>}
+                    {errors.upazila && (
+                        <p className="text-red-500 text-sm">{errors.upazila.message as string}</p>
+                    )}
                 </div>
 
-                {/* unionOrMunicipalityOrWard */}
+                {/* Union */}
                 <div className="grid gap-1">
-                    <Label htmlFor="unionOrMunicipalityOrWard">Union/Municipality/Ward</Label>
-                    <Input id="unionOrMunicipalityOrWard" {...register("unionOrMunicipalityOrWard", { required: true })} />
-                    {errors.unionOrMunicipalityOrWard && <p className="text-red-500 text-sm">Required</p>}
-                </div>
-                {/* post office  */}
-
-                <div className="grid gap-1">
-                    <Label htmlFor="postOffice">Post Office</Label>
-                    <Input id="postOffice" {...register("postOffice", { required: true })} />
-                    {errors.postOffice && <p className="text-red-500 text-sm">Required</p>}
+                    <Label>Union / Municipality / Ward</Label>
+                    <Input {...register("union", { required: "Union/Municipality is required" })} />
+                    {errors.union && (
+                        <p className="text-red-500 text-sm">{errors.union.message as string}</p>
+                    )}
                 </div>
 
-                {/* village  */}
+                {/* Post Office Bangla */}
                 <div className="grid gap-1">
-                    <Label htmlFor="village">Village / Neighborhood </Label>
-                    <Input id="village" {...register("village", { required: true })} />
-                    {errors.village && <p className="text-red-500 text-sm">Required</p>}
+                    <Label>Post Office (Bangla)</Label>
+                    <Input {...register("postOfficeBangla", { required: "Post Office (Bangla) is required" })} />
+                    {errors.postOfficeBangla && (
+                        <p className="text-red-500 text-sm">{errors.postOfficeBangla.message as string}</p>
+                    )}
                 </div>
 
-                {/* house  */}
+                {/* Post Office English */}
                 <div className="grid gap-1">
-                    <Label htmlFor="house">House number & street name</Label>
-                    <Input id="house" {...register("house", { required: true })} />
-                    {errors.house && <p className="text-red-500 text-sm">Required</p>}
+                    <Label>Post Office (English)</Label>
+                    <Input {...register("postOfficeEnglish", { required: "Post Office (English) is required" })} />
+                    {errors.postOfficeEnglish && (
+                        <p className="text-red-500 text-sm">{errors.postOfficeEnglish.message as string}</p>
+                    )}
                 </div>
             </div>
-
-
-            <Button type="submit" className="w-full">Next</Button>
-        </form>
+        </div>
     );
 };
 
