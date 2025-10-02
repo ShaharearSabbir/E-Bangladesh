@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem, SelectGroup } from "@/components/ui/select";
 import { SelectLabel } from "@radix-ui/react-select";
 
-export default function Step4() {
+export default function Step4ApplicantInfo() {
     const {
         register,
         control,
@@ -14,7 +14,7 @@ export default function Step4() {
 
     return (
         <div className="space-y-6">
-            <h2 className="text-lg font-semibold">Step 4: Applicant Information</h2>
+            <h2 className="text-lg font-semibold">Step 5: Applicant Information</h2>
 
             {/* Applicant Name */}
             <div>

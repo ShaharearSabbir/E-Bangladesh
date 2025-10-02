@@ -1,63 +1,21 @@
 "use client";
+
 import React, { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
-import Step1ChildInfo from "./steps/Step1ChildInfo";
-import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+import { UserOnDatabase } from "../../type/userType";
+import Step1ChildInfo from "./steps/Step1ChildInfo";
+import AddressForm from "./steps/AddressForm";
 import Step2ParentsInfo from "./steps/Step2ParentsInfo";
 import Step3Documents from "./steps/Step3Documents";
 import Step4ApplicantInfo from "./steps/Step4ApplicantInfo";
-
-export type FormValues = {
-    // Step 1
-    firstNameBangla: string;
-    lastNameBangla: string;
-    firstNameEnglish: string;
-    lastNameEnglish: string;
-    dateOfBirth: string;
-    gender: string;
-    birthOrder: string;
-    country: string;
-    division: string;
-    district: string;
-    upazila: string;
-    union: string;
-    postOfficeBangla: string;
-    postOfficeEnglish: string;
-
-    // Step 2
-    fatherNameBangla: string;
-    fatherNameEnglish: string;
-    motherNameBangla: string;
-    motherNameEnglish: string;
-    fatherId: number;
-    motherId: number;
-    parentsBirthReg: string;
-    parentsOccupation: string;
-    parentsNationality: string;
-    permanentAddress: string;
-    villageBangla: string;
-    villageEnglish: string;
-
-    // Step 3
-    proofOfBirth: string;
-    proofOfAddress: string;
-    additionalDocs: string;
-    houseNoBangla: string;
-    houseNoEnglish: string;
-
-    // Step 4
-    applicantName: string;
-    applicantRelation: string;
-    applicantId: string;
-    contactNumber: string;
-    email: string;
-    signature: string;
-};
+import { Button } from "../ui/button";
 
 const MultiStepForm = () => {
-    const methods = useForm<FormValues>();
+    const methods = useForm({ mode: "onChange" });
     const [step, setStep] = useState(1);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const nextStep = async () => {
         const valid = await methods.trigger();
@@ -66,36 +24,134 @@ const MultiStepForm = () => {
 
     const prevStep = () => setStep((prev) => prev - 1);
 
-    const onSubmit = (data: FormValues) => {
-        console.log("✅ Final Data:", data);
+    const onSubmit = async (formData: any) => {
+        setIsSubmitting(true);
+
+        const payload: Partial<UserOnDatabase> = {
+            UID: formData.applicantID || "",
+            email: formData.email,
+            role: "citizen", // default role
+            createdAt: new Date().toISOString(),
+            isVerified: false,
+
+            // Personal Information
+            firstName: formData.firstName || formData.firstNameBn,
+            lastName: formData.lastName || formData.lastNameBn,
+            gender: formData.gender,
+            bloodGroup: formData.bloodGroup,
+            DOB: formData.DOB,
+            placeOfBirth: formData.placeOfBirth,
+            religion: formData.religion,
+            disabilities: formData.disabilities,
+            birthMark: formData.birthMark,
+
+            // Contact
+            mobileNumber: formData.contactNumber,
+
+            // Addresses
+            presentAddress: formData.presentAddress
+                ? {
+                    division: formData.presentAddress.division,
+                    district: formData.presentAddress.district,
+                    upazila: formData.presentAddress.upazila,
+                    union: formData.presentAddress.union,
+                    village: formData.presentAddress.village,
+                    postOffice: formData.presentAddress.postOffice,
+                    postCode: formData.presentAddress.postCode,
+                    holdingNumber: formData.presentAddress.holdingNumber,
+                    word: formData.presentAddress.word,
+                    voterArea: formData.presentAddress.voterArea,
+                    mouza: formData.presentAddress.mouza,
+                }
+                : undefined,
+
+            permanentAddress: formData.permanentAddress
+                ? {
+                    division: formData.permanentAddress.division,
+                    district: formData.permanentAddress.district,
+                    upazila: formData.permanentAddress.upazila,
+                    union: formData.permanentAddress.union,
+                    village: formData.permanentAddress.village,
+                    postOffice: formData.permanentAddress.postOffice,
+                    postCode: formData.permanentAddress.postCode,
+                    holdingNumber: formData.permanentAddress.holdingNumber,
+                    word: formData.permanentAddress.word,
+                    voterArea: formData.permanentAddress.voterArea,
+                    mouza: formData.permanentAddress.mouza,
+                }
+                : undefined,
+
+            // Parents
+            father: formData.father
+                ? {
+                    name: formData.father.name,
+                    ID: formData.father.ID,
+                    relation: "father",
+                    isDead: formData.father.isDead,
+                    dateOfDeath: formData.father.dateOfDeath,
+                    occupation: formData.father.occupation,
+                }
+                : undefined,
+
+            mother: formData.mother
+                ? {
+                    name: formData.mother.name,
+                    ID: formData.mother.ID,
+                    relation: "mother",
+                    isDead: formData.mother.isDead,
+                    dateOfDeath: formData.mother.dateOfDeath,
+                    occupation: formData.mother.occupation,
+                }
+                : undefined,
+
+            updatedAt: new Date().toISOString(),
+        };
+
+        console.log(payload);
         toast.success("Form submitted successfully!");
+        setIsSubmitting(false);
     };
 
     return (
         <FormProvider {...methods}>
-            <div className="p-6  bg-background rounded-2xl space-y-6 border shadow-2xl  mx-auto">
+            <div className="p-6 bg-background rounded-2xl space-y-6 border shadow-2xl mx-auto">
                 <h1 className="text-2xl font-bold text-center">
                     Birth Certificate Registration
                 </h1>
 
-                <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                    onSubmit={methods.handleSubmit(onSubmit)}
+                    className="space-y-6"
+                >
                     {step === 1 && <Step1ChildInfo />}
-                    {step === 2 && <Step2ParentsInfo />}
-                    {step === 3 && <Step3Documents />}
-                    {step === 4 && <Step4ApplicantInfo />}
+                    {step === 2 && <AddressForm />}
+                    {step === 3 && <Step2ParentsInfo />}
+                    {step === 4 && <Step3Documents />}
+                    {step === 5 && <Step4ApplicantInfo />}
 
-                    <div className={`flex items-center ${step === 1 ? "justify-end" : "justify-between"} pt-6`}>
+                    <div
+                        className={`flex items-center ${step === 1 ? "justify-end" : "justify-between"
+                            } pt-6`}
+                    >
                         {step > 1 && (
-                            <Button type="button" variant="outline" onClick={prevStep}>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={prevStep}
+                            >
                                 Back
                             </Button>
                         )}
-                        {step < 4 && (
+                        {step < 5 && (
                             <Button type="button" onClick={nextStep}>
                                 Next
                             </Button>
                         )}
-                        {step === 4 && <Button type="submit">Submit</Button>}
+                        {step === 5 && (
+                            <Button type="submit" disabled={isSubmitting}>
+                                {isSubmitting ? "Submitting..." : "Submit"}
+                            </Button>
+                        )}
                     </div>
                 </form>
             </div>

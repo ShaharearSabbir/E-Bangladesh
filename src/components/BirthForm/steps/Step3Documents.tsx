@@ -3,7 +3,7 @@ import { useFormContext } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 
-export default function Step3() {
+export default function Step3Documents() {
   const {
     register,
     formState: { errors },
@@ -11,7 +11,7 @@ export default function Step3() {
 
   return (
     <div className="space-y-6 max-w-6xl">
-      <h2 className="text-lg font-semibold">Step 3: Proof & Documents</h2>
+      <h2 className="text-lg font-semibold">Step 4: Proof & Documents</h2>
 
       {/* Proof of Birth */}
       <div>

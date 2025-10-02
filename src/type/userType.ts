@@ -1,8 +1,9 @@
 // Refined Address interface
 interface Address {
   division?: string;
+  district?: string;
   zila?: string;
-  thana?: string;
+  upazila?: string;
   RMO?: RMO;
   union?: string;
   mouza?: string;
@@ -31,6 +32,8 @@ type UserRole = "citizen" | "admin" | "officer";
 // Separate interface for family members to avoid storing sensitive data
 interface FamilyMember {
   name?: string;
+  ID: string;
+  occupation: string;
   relation?: string;
   isDead?: boolean;
   dateOfDeath?: string;
