@@ -11,10 +11,11 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 import logo from "../../../assets/long logo.png";
-// import SidebarContent from "./SidebarContent";
+import SidebarContent from "./SidebarContent";
 import { getUserFromDb } from "@/actions/user";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import navigation from "./citizen/citizenNavigation";
 
 interface User {
     UID: string
@@ -26,10 +27,13 @@ const DashboardNavbar = () => {
     const { data: session, status } = useSession();
     const [user, setUser] = useState<User | null>(null)
 
+
+    console.log(session)
+
     useEffect(() => {
         const fetchUser = async () => {
             if (status === "authenticated" && session?.user?.email) {
-                const user = await getUserFromDb(session.user.email);
+                const user = await getUserFromDb(session.user.email, "");
                 setUser(user);
                 console.log(user)
             }
@@ -52,7 +56,7 @@ const DashboardNavbar = () => {
                             <SheetHeader className="border-b p-4">
                                 <SheetTitle>Citizen Portal</SheetTitle>
                             </SheetHeader>
-                            {/* <SidebarContent /> */}
+                            <SidebarContent navigation={navigation} />
                         </SheetContent>
                     </Sheet>
                 </div>

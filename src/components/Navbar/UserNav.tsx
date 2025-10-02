@@ -25,10 +25,17 @@ const UserNav = () => {
         </Link>{" "}
       </>
     );
-  }
+  }   
   return (
     <div className="flex items-center gap-6">
-      <span>Welcome, {session?.user.email}</span>{" "}
+      <span className="font-bold border-b px-2 pb-1 hover:text-primary">
+        <Link href="/dashboard" >
+          Dashboard
+        </Link>
+
+      </span>
+
+      {/* <span>Welcome, {session?.user.email}</span>{" "} */}
       <div className=" border-2 rounded-full p-0.5">
         <Image src={dPro} alt="" className="h-10 w-10 rounded-full cursor-pointer" />
       </div>

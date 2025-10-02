@@ -1,8 +1,10 @@
-import React from "react";
+// src/app/(routes)/dashboard/page.tsx
+"use client"; // 🔑 important
 
-const page = () => {
-  // Dashboard will use component based on their section
-  return <div>{/* Admin Dashboard */}</div>;
+import RoleSelect from './RoleSelect';
+
+const Page = () => {
+  return <RoleSelect />;
 };
 
-export default page;
+export default Page;

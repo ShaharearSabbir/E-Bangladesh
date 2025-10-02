@@ -11,7 +11,7 @@ import {
 const navigation = [
     {
         name: "Dashboard",
-        href: "/dashboard",
+        href: "/dashboard/citizen",
         icon: Home,
     },
     {
