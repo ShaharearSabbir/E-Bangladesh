@@ -68,6 +68,9 @@ const MultiStepForm = () => {
 
     const onSubmit = (data: FormValues) => {
         console.log("✅ Final Data:", data);
+
+        if(data.dateOfBirth )
+
         toast.success("Form submitted successfully!");
     };
 

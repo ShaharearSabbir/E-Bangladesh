@@ -1,5 +1,6 @@
 // Refined Address interface
 interface Address {
+  isSame?: boolean;
   division?: string;
   zila?: string;
   thana?: string;
@@ -56,6 +57,7 @@ export interface UserOnDatabase {
 
   // Personal Information
   firstName?: string;
+  orderOFChild?: string;
   lastName?: string;
   gender?: Gender;
   bloodGroup?: BloodGroup;
