@@ -1,5 +1,6 @@
 "use server";
 import connectDB from "@/lib/connectDB";
+import { setAuthCookie, signJwt } from "@/lib/jwt";
 import { sendVerificationEmail } from "@/sendVerificationEmail";
 import { UserOnDatabase } from "@/type/userType";
 import bcrypt from "bcrypt";
@@ -25,6 +26,7 @@ export interface FunctionReturns {
     UID: string;
     role: string;
   };
+  token?: string;
 }
 
 interface UserForAuth {
@@ -72,12 +74,34 @@ export const createUser = async (
   const result = await collection.insertOne(newUser);
 
   if (result.insertedId) {
-    //  Send verification email after successful insert
-    const verificationLink = `${process.env.NEXT_PUBLIC_URL}/verify-email?code=${newUser.verificationCode}&email=${newUser.email}`;
-    await sendVerificationEmail(
-      newUser.email,
-      `Click the link to verify your account: ${verificationLink}`
+
+    // Generate JWT (UID + email + role + verificationCode)
+    const verifyToken = await signJwt(
+      {
+        email: newUser.email,
+        UID: newUser.UID,
+        role: newUser.role,
+        code: newUser.verificationCode,
+      },
     );
+
+    //  Send verification email after successful insert
+    const verificationLink = `${process.env.NEXT_PUBLIC_URL}/verify-email?email=${newUser.email}&code=${newUser.verificationCode}&token=${verifyToken}`;
+    
+    await verifyEmailTemplate(
+      newUser.email,    
+      newUser.UID,      
+      verificationLink  
+    );
+
+    // JWT Token
+    const token = await signJwt({
+      email: newUser.email,
+      UID: newUser.UID,
+      role: newUser.role,
+    });
+
+    await setAuthCookie(token);
 
     const sendResult: FunctionReturns = {
       status: 201,
@@ -88,6 +112,7 @@ export const createUser = async (
         UID: newUser.UID,
         role: newUser.role,
       },
+      token,
     };
 
     return sendResult;

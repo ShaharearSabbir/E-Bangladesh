@@ -19,11 +19,8 @@
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-<<<<<<< HEAD
     "jsonwebtoken": "^9.0.2",
-=======
     "date-fns": "^4.1.0",
->>>>>>> origin/development
     "lucide-react": "^0.544.0",
     "mongodb": "^6.19.0",
     "motion": "^12.23.13",
