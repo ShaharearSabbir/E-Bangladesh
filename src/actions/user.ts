@@ -1,7 +1,7 @@
 "use server";
 import connectDB from "@/lib/connectDB";
+import { verifyEmailTemplate } from "@/lib/email-templates/verifyEmail";
 import { setAuthCookie, signJwt } from "@/lib/jwt";
-import { sendVerificationEmail } from "@/sendVerificationEmail";
 import { UserOnDatabase } from "@/type/userType";
 import bcrypt from "bcrypt";
 import { Collection, WithId } from "mongodb";
@@ -87,11 +87,11 @@ export const createUser = async (
 
     //  Send verification email after successful insert
     const verificationLink = `${process.env.NEXT_PUBLIC_URL}/verify-email?email=${newUser.email}&code=${newUser.verificationCode}&token=${verifyToken}`;
-    
+
     await verifyEmailTemplate(
-      newUser.email,    
-      newUser.UID,      
-      verificationLink  
+      newUser.email,  
+      newUser.UID,    
+      verificationLink 
     );
 
     // JWT Token

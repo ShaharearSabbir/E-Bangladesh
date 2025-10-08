@@ -16,6 +16,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+console.log("App Password:", process.env.GMAIL_APP_PASSWORD);
+
 export const sendMail = async ({ to, subject, body }: MailerArgs) => {
   const mailOptions = {
     from: "electrotic.bangladesh@gmail.com",
@@ -26,6 +28,7 @@ export const sendMail = async ({ to, subject, body }: MailerArgs) => {
 
   try {
     const result = await transporter.sendMail(mailOptions);
+    console.log("Mail sent successfully:", result);
     return result;
   } catch (error) {
     throw error;
